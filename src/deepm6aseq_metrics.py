@@ -1,5 +1,6 @@
 # metrics for predictions on the test set of dr
 import numpy as np
+from imblearn.under_sampling import NearMiss
 from sklearn.metrics import confusion_matrix, accuracy_score, f1_score, classification_report
 
 ds_dr_test = np.load('data_processed/dr_test.npy') # ground truth

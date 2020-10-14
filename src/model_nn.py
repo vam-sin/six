@@ -2,7 +2,7 @@
 # add dropout and regularization later on if needed
 
 # Libraries
-from keras.layers import TimeDistributed, Dense, Dropout, Input, Bidirectional, LSTM, SpatialDropout1D, Embedding, Conv1D, Flatten
+from keras.layers import TimeDistributed, Dense, Dropout, Input, LSTM, SpatialDropout1D, Embedding, Conv1D, Flatten
 import keras
 from keras.models import Model
 import keras.backend as K 
@@ -11,19 +11,19 @@ from keras_self_attention import SeqSelfAttention
 def NN():
 	inp = Input(shape = (14,1,))
 	
-	bid = Conv1D(128, 1, activation = 'relu')(inp)
-	bid = Conv1D(128, 1, activation = 'relu')(bid)
-	bid = Conv1D(128, 1, activation = 'relu')(bid)
+	x = Conv1D(128, 1, activation = 'relu')(inp)
+	x = Conv1D(128, 1, activation = 'relu')(x)
+	x = Conv1D(128, 1, activation = 'relu')(x)
 
-	bid = Flatten()(bid)
+	x = Flatten()(x)
 
-	bid = Dense(512, activation = 'relu')(bid)
-	bid = Dense(256, activation = 'relu')(bid)
-	bid = Dense(128, activation = 'relu')(bid)
-	bid = Dense(64, activation = 'relu')(bid)
-	bid = Dense(32, activation = 'relu')(bid)
+	x = Dense(512, activation = 'relu')(x)
+	x = Dense(256, activation = 'relu')(x)
+	x = Dense(128, activation = 'relu')(x)
+	x = Dense(64, activation = 'relu')(x)
+	x = Dense(32, activation = 'relu')(x)
 
-	out = Dense(2, activation = 'softmax')(bid)
+	out = Dense(2, activation = 'softmax')(x)
 
 	model = Model(inputs = inp, outputs = out)
 	print(model.summary())
