@@ -1,6 +1,9 @@
 /datasets
 /papers
 /repos
+/documents
+data_processed
+models
+features
 /src/dna2vec
-/src/data_processed
-/src/models
+/src/ViennaRNA-2.4.15

@@ -2,6 +2,7 @@ import keras
 import keras.backend as K
 import numpy as np
 import tensorflow as tf
+from sklearn import metrics
 # GPU
 from tensorflow.compat.v1 import ConfigProto
 from tensorflow.compat.v1 import InteractiveSession
@@ -31,8 +32,12 @@ if gpus:
 
 y_pred = np.zeros((101))
 y_true = np.zeros((101))
-y_true[10] = 1
-y_pred[10] = 1
+# y_true[10] = 1
+# y_pred[10] = 1
+# y_pred[25] = 1
+# y_pred[40] = 1
+# # y_pred[51] = 1
+
 
 def sensitivity(y_true, y_pred):
 	true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
@@ -40,11 +45,22 @@ def sensitivity(y_true, y_pred):
 	
 	return true_positives / (possible_positives + K.epsilon())
 
-def specificity(y_true, y_pred):
-    true_negatives = K.sum(K.round(K.clip((1-y_true) * (1-y_pred), 0, 1)))
-    possible_negatives = K.sum(K.round(K.clip(1-y_true, 0, 1)))
+def precision(y_true, y_pred):
+    if K.sum(y_true) == 1.0:
+        tp = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
+        neg_y_true = 1 - y_true
+        fp = K.sum(neg_y_true * y_pred)
+        val = tp / (tp + fp + K.epsilon())
 
-    return true_negatives / (possible_negatives + K.epsilon())
+        return val
+    else:
+        neg_y_true = 1 - y_true
+        fp = K.sum(neg_y_true * y_pred)
+        if fp == 0:
+            return 1
+        else:
+            return 0
+
 
 # def weighted_loss(y_true, y_pred):
 # 	result = []
@@ -55,34 +71,35 @@ def specificity(y_true, y_pred):
 
 # 	return np.mean(result)
 
-one_weight = 10
-zero_weight = 1
+one_weight = 1000
+zero_weight = 10
 
 def weighted_binary_crossentropy(y_true, y_pred):
-    if K.sum(y_true) == 1.0:
+    kvar = K.ones((1))
+    print(K.eval(K.equal(K.sum(y_true), kvar))[0])
+    if K.equal(K.sum(y_true), kvar):
     	b_ce = K.binary_crossentropy(y_true, y_pred)
-    	print(b_ce)
+    	# print(b_ce)
     	weight_vector = y_true * one_weight + (1. - y_true) * zero_weight
-    	print(weight_vector)
+    	# print(weight_vector)
     	weighted_b_ce = weight_vector * b_ce
-    	print(weighted_b_ce)
+    	# print(weighted_b_ce)
     	return K.mean(weighted_b_ce)
     else:
     	b_ce = K.binary_crossentropy(y_true, y_pred)
-    	print(b_ce)
+    	# print(b_ce)
     	weight_vector = y_true * one_weight + (1. - y_true) * zero_weight
-    	print(weight_vector)
+    	# print(weight_vector)
     	weighted_b_ce = weight_vector * b_ce
-    	print(weighted_b_ce)
+    	return K.mean(weighted_b_ce)
 
 
-
-print(y_pred, y_true)
+# print(y_pred, y_true)
 y_true = tf.convert_to_tensor(y_true, dtype=tf.float32)
 y_pred = tf.convert_to_tensor(y_pred, dtype=tf.float32)
 print(weighted_binary_crossentropy(y_true, y_pred))
-print(sensitivity(y_true, y_pred))
-print(specificity(y_true, y_pred))
+# print(sensitivity(y_true, y_pred))
+print(precision(y_true, y_pred))
 
 '''
 Sens = TP / (TP+FN) = 0
